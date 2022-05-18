@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Like{% endblock %}
+
+{% block content %}
+    <h1>Like</h1>
+    <form method="POST">
+        {% csrf_token %}
+        <p>Voulez-vous liker ce contenu ?</p>
+        <!-- {% for item in liked_message %}
+            <li>{{ item }}</li>
+        {% endfor %} -->
+        {{ message.content }}
+        {{form.as_p}}
+        <input type="submit" value="Like">
+    </form>
+{% endblock %}

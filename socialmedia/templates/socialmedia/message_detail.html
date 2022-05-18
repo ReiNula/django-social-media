@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Message{% endblock %}
+
+{% block content %}
+    <div class="message">
+        <a href="{% url 'profile' message.user.username %}">{{message.user.username}}</a> {{message.publication_date}}
+        <br>{{message.content}}
+        <div class="replies">
+            <ul>
+                {% for reply in replies %}
+                    <li>{{reply.user.username}}
+                        {{ reply.content }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+    <div class="userprofile">
+        <div  class="biography">
+            {{ user }}
+            <a href="">Edit profile</a> - <a href="">Follow</a>
+            {{ user.biography }}
+            <br>{{ nb_published_messages }} message(s) published
+            <br>{{ followeds }} subscription(s) | {{ followers }} Follower(s)
+        </div>
+        <div class="messages">
+            <ul>
+                <div  class="message">
+                {% for item in user_messages %}
+                    <li>{{ item }}</li>
+                {% endfor %}
+                </div>
+            </ul>
+        </div>
+    </div>
+{% endblock %}

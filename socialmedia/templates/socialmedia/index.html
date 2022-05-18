@@ -1,0 +1,44 @@
+{% extends 'base.html' %} 
+
+{% block title %}Home{% endblock %} 
+
+{% block content %}
+<div class="messages">
+  <h1>Last messages</h1>
+  <a href="{% url 'new_message' %}">New message</a>
+  {% for item in messages %}
+  <li>
+    {% if item.retweeted %}
+    <span
+      >Republished by
+      <a href="{% url 'profile' item.user.username %}"
+        >{{item.user.username}}</a
+      ></span
+    >
+    {% if item.content %}
+    <br />
+    {{item.content}}
+    {% endif %}
+    <br />
+    <a href="{% url 'profile' item.retweeted.user.username %}"
+      >{{item.retweeted.user.username}}</a
+    >
+    {{item.retweeted.publication_date}} <br />{{ item.retweeted.content }}
+    <br /><a href="{% url 'retweet' %}">Republish</a> <a href="{% url 'reply' %}">Reply</a> <a href="{% url 'like' item.retweeted.id %}">Like</a>
+    <br /><a href="{% url 'message_detail' item.retweeted.id %}">Detail</a>
+    
+    {% else %}
+    <span
+      ><a href="{% url 'profile' item.user.username %}"
+        >{{item.user.username}}</a
+      >
+      {{item.publication_date}}</span
+    >
+    <br />{{ item.content }} <br /><a href="{% url 'retweet' %}">Republish</a>
+    <a href="{% url 'reply' %}">Reply</a> <a href="{% url 'like' item.id %}">Like</a>
+    <br /><a href="{% url 'message_detail' item.id %}">Detail</a>
+    {% endif %}
+  </li>
+  {% endfor %}
+</div>
+{% endblock %}

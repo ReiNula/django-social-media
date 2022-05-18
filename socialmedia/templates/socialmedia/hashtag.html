@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block title %}Hashtag{% endblock %}
+
+{% block content %}
+    <div class="hashtag">
+        {% for item in message %}
+            <li>{{ item }}</li>
+        {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
