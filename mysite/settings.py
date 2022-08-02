@@ -39,9 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'debug_toolbar',
     'socialmedia', # Authorize socialmedia app
-    'tailwind',
-    'theme',
-    'django_browser_reload',
 ]
 
 MIDDLEWARE = [
@@ -53,7 +50,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    "django_browser_reload.middleware.BrowserReloadMiddleware",
 ]
 
 ROOT_URLCONF = 'mysite.urls'
@@ -145,8 +141,3 @@ INTERNAL_IPS = [
 if DEBUG:
     import mimetypes
     mimetypes.add_type("application/javascript", ".js", True)
-
-
-TAILWIND_APP_NAME = 'theme'
-
-NPM_BIN_PATH = r"C:\Program Files\nodejs\npm.cmd"
