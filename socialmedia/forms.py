@@ -2,8 +2,8 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from .models import Like, Message, User
 
-class UserSignIn(UserCreationForm):
-    # Create user sign in
+class RegistrationForm(UserCreationForm):
+    # Create user registration
 
     class Meta:
         model = User

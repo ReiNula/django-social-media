@@ -1,25 +1,58 @@
 from re import template
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import views as auth_views
+from django.contrib import messages
 
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, DetailView, ListView
+from django.views.generic import View, CreateView, DetailView, ListView
 
-from .forms import AddMessageForm, LikeForm, ReplyForm, RetweetForm, UserSignIn
+from .forms import AddMessageForm, LikeForm, ReplyForm, RetweetForm, RegistrationForm
 from .models import Hashtag, HashtagContent, Like, Message, Subscription, User
 
 
 # Sign In View
-class SignUpView(CreateView):
-    form_class = UserSignIn
+class LoginPageView(auth_views.LoginView):
+    template_name = "registration/login.html"
+
+    def get(self, request):
+        # Define view with GET method
+        form = self.form_class()
+        message = ''
+        return render(request, self.template_name, context={'form': form, 'message': message})
+    
+    def post(self, request):
+        # Define view with POST method
+        form = self.get_form()
+        if form.is_valid():
+            user = authenticate(
+                username=form.cleaned_data['username'],
+                password=form.cleaned_data['password'],
+            )
+            print('Test')
+            if user is not None:
+                # Success login
+                login(request, user)
+                return redirect('home')
+        message = 'Login failed, try again'
+        return render(request, self.template_name, context={'form': form, 'message': message})
+
+
+class LogoutPageView(auth_views.LogoutView):
+    pass
+
+
+class RegisterView(CreateView):
+    form_class = RegistrationForm
     success_url = reverse_lazy('login')
-    template_name = 'registration/signup.html'
+    template_name = 'registration/register.html'
 
 
 class IndexView(ListView):
     """
-    Affiche les derniers messages de l'utilisateur + abonnés
-    et retweets (n'affiche pas les réponses)
+    Show last authenticated user + followed accounts messages
+    and republished (not replies)
     """
     queryset = Message.objects.order_by('-publication_date')
     context_object_name = 'messages'
@@ -28,10 +61,10 @@ class IndexView(ListView):
 
 class AddMessageView(CreateView):
     """
-    Ajoute un nouveau message de l'utilisateur à la date du jour
+    Add new message from authenticated used
     """
     form_class = AddMessageForm
-    success_url = reverse_lazy('index')
+    success_url = reverse_lazy('home')
     # fields = ['user','content']
     template_name = 'socialmedia/new_message.html'
 
@@ -54,13 +87,13 @@ class UserProfileView(DetailView):
 
 class RetweetView(CreateView):
     form_class = RetweetForm
-    success_url = reverse_lazy('index')
+    success_url = reverse_lazy('home')
     template_name = 'socialmedia/retweet.html'
 
 
 class ReplyView(CreateView):
     form_class = ReplyForm
-    success_url = reverse_lazy('index')
+    success_url = reverse_lazy('home')
     template_name = 'socialmedia/reply.html'
 
 
@@ -80,7 +113,7 @@ class DetailTweetView(DetailView):
 class LikeView(CreateView):
     # TODO Améliorer en likant sur le message par la clé étrangère
     form_class = LikeForm
-    success_url = reverse_lazy('index')
+    success_url = reverse_lazy('home')
     context_object_name = 'message'
     slug_field = 'message_id'
     slug_url_kwarg = 'message_id'

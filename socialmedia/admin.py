@@ -2,7 +2,7 @@ from dataclasses import fields
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .forms import UserSignIn
+from .forms import RegistrationForm
 from .models import User, Message, Like, Subscription, Mention, Hashtag, HashtagContent
 
 # Admin model
