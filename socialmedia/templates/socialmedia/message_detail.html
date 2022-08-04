@@ -9,8 +9,8 @@
         <div class="replies">
             <ul>
                 {% for reply in replies %}
-                    <li>{{reply.user.username}}
-                        {{ reply.content }}</li>
+                    <li><a href="{% url 'profile' reply.user.username %}">{{reply.user.username}}</a> {{reply.publication_date}}
+                        <br>{{ reply.content }}</li>
                 {% endfor %}
             </ul>
         </div>

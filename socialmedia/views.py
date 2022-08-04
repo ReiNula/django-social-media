@@ -30,7 +30,6 @@ class LoginPageView(auth_views.LoginView):
                 username=form.cleaned_data['username'],
                 password=form.cleaned_data['password'],
             )
-            print('Test')
             if user is not None:
                 # Success login
                 login(request, user)
@@ -54,9 +53,45 @@ class IndexView(ListView):
     Show last authenticated user + followed accounts messages
     and republished (not replies)
     """
-    queryset = Message.objects.order_by('-publication_date')
+    # queryset = Message.objects.order_by('-publication_date')
+    model = Message
     context_object_name = 'messages'
+    ordering = ['-publication_date']
     template_name = 'socialmedia/index.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('login')
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return Message.objects.filter(user=self.request.user)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        followed_users = Subscription.objects.filter(follower=self.request.user).values('followed')
+        context['followed_messages'] = Message.objects.filter(user__in=followed_users).order_by('-publication_date')
+        return context
+
+
+class DetailMessageView(DetailView):
+    model = Message
+    context_object_name = 'message'
+    slug_field = 'origin_id'
+    slug_url_kwarg = 'origin_id'
+    template_name = 'socialmedia/message_detail.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('login')
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['replies'] = Message.objects.filter(origin=self.get_object()).order_by('-publication_date')
+        return context
 
 
 class AddMessageView(CreateView):
@@ -65,8 +100,19 @@ class AddMessageView(CreateView):
     """
     form_class = AddMessageForm
     success_url = reverse_lazy('home')
-    # fields = ['user','content']
     template_name = 'socialmedia/new_message.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('login')
+
+        return super().dispatch(request, *args, **kwargs)
+    
+    def post(self, request):
+        form = self.get_form()
+        if form.is_valid:
+            form.save(user=request.user, commit=False)
+        return redirect('home')
 
 
 class UserProfileView(DetailView):
@@ -96,18 +142,11 @@ class ReplyView(CreateView):
     success_url = reverse_lazy('home')
     template_name = 'socialmedia/reply.html'
 
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('login')
 
-class DetailTweetView(DetailView):
-    model = Message
-    context_object_name = 'message'
-    slug_field = 'origin_id'
-    slug_url_kwarg = 'origin_id'
-    template_name = 'socialmedia/message_detail.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['replies'] = Message.objects.filter(origin=self.get_object()).order_by('-publication_date')
-        return context
+        return super().dispatch(request, *args, **kwargs)
 
 
 class LikeView(CreateView):

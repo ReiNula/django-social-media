@@ -14,7 +14,15 @@ class AddMessageForm(forms.ModelForm):
     
     class Meta:
         model = Message
-        fields = ('user', 'content')
+        fields = ('content',)
+    
+    def save(self, **kwargs):
+        user = kwargs.pop('user')
+        instance = super(AddMessageForm, self).save(**kwargs)
+        instance.user = user
+        instance.save()
+        return instance
+
 
 
 class RetweetForm(forms.ModelForm):

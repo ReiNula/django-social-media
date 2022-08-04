@@ -1,44 +1,45 @@
-{% extends 'base.html' %} 
+{% extends 'home.html' %} 
 
 {% block title %}Home{% endblock %} 
 
 {% block content %}
-<div class="messages">
-  <h1>Last messages</h1>
-  <a href="{% url 'new_message' %}">New message</a>
-  {% for item in messages %}
-  <li>
-    {% if item.retweeted %}
-    <span
-      >Republished by
-      <a href="{% url 'profile' item.user.username %}"
-        >{{item.user.username}}</a
-      ></span
-    >
-    {% if item.content %}
-    <br />
-    {{item.content}}
-    {% endif %}
-    <br />
-    <a href="{% url 'profile' item.retweeted.user.username %}"
-      >{{item.retweeted.user.username}}</a
-    >
-    {{item.retweeted.publication_date}} <br />{{ item.retweeted.content }}
-    <br /><a href="{% url 'retweet' %}">Republish</a> <a href="{% url 'reply' %}">Reply</a> <a href="{% url 'like' item.retweeted.id %}">Like</a>
-    <br /><a href="{% url 'message_detail' item.retweeted.id %}">Detail</a>
-    
-    {% else %}
-    <span
-      ><a href="{% url 'profile' item.user.username %}"
-        >{{item.user.username}}</a
-      >
-      {{item.publication_date}}</span
-    >
-    <br />{{ item.content }} <br /><a href="{% url 'retweet' %}">Republish</a>
-    <a href="{% url 'reply' %}">Reply</a> <a href="{% url 'like' item.id %}">Like</a>
-    <br /><a href="{% url 'message_detail' item.id %}">Detail</a>
-    {% endif %}
-  </li>
-  {% endfor %}
-</div>
+
+
+{% if user.is_authenticated %}
+    <p>Welcome, {{ user.username }}. Thanks for logging in.</p>
+    <a href="{% url 'new_message' %}">New message</a>
+
+    <h1>Last messages</h1>
+    <!-- Messages from authenticated user (ignore replies) -->
+    {% for message in messages %}
+      {% if not message.origin %}
+        <ul>
+          <h5>Original Message</h5>
+          <a href="{% url 'profile' message.user.username %}">{{ message.user.username }}</a>
+          {{ message.publication_date }}
+          <p>{{ message.content }}</p>
+          <a href="{% url 'message_detail' message.id %}">Detail</a>
+          <br>
+          <a href="{% url 'reply' message.id %}">Reply</a> - Like - Republish
+          <br>______________________
+        </ul>
+      {% endif %}
+    {% endfor %}
+
+    <!-- Messages from followed accounts -->
+    {% for message in followed_messages %}
+      <ul>
+        <h5>Follower Message</h5>
+        <a href="{% url 'profile' message.user.username %}">{{ message.user.username }}</a>
+        {{ message.publication_date }}
+        <p>{{ message.content }}</p>
+        ______________________
+      </ul>
+    {% endfor %}
+   
+
+{% else %}
+    <p>Welcome, new user. Please log in.</p>
+{% endif %}
+
 {% endblock %}
