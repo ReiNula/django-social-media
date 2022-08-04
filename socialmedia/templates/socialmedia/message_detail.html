@@ -6,13 +6,20 @@
     <div class="message">
         <a href="{% url 'profile' message.user.username %}">{{message.user.username}}</a> {{message.publication_date}}
         <br>{{message.content}}
+        <br>_________
+        <br><a href="{% url 'reply' message.id %}">Reply</a>
         <div class="replies">
-            <ul>
-                {% for reply in replies %}
-                    <li><a href="{% url 'profile' reply.user.username %}">{{reply.user.username}}</a> {{reply.publication_date}}
-                        <br>{{ reply.content }}</li>
-                {% endfor %}
-            </ul>
+            {% if not replies %}
+                <br>No replies yet to this message.
+            {% else %}
+                <br>Replies
+                <ul>
+                    {% for reply in replies %}
+                        <li><a href="{% url 'profile' reply.user.username %}">{{reply.user.username}}</a> {{reply.publication_date}}
+                            <br>{{ reply.content }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

@@ -1,3 +1,4 @@
+from audioop import reverse
 from re import template
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse
@@ -6,7 +7,8 @@ from django.contrib.auth import views as auth_views
 from django.contrib import messages
 
 from django.urls import reverse_lazy
-from django.views.generic import View, CreateView, DetailView, ListView
+from django.views.generic import View, CreateView, DetailView, ListView, FormView
+from django.views.generic.detail import SingleObjectMixin
 
 from .forms import AddMessageForm, LikeForm, ReplyForm, RetweetForm, RegistrationForm
 from .models import Hashtag, HashtagContent, Like, Message, Subscription, User
@@ -138,8 +140,8 @@ class RetweetView(CreateView):
 
 
 class ReplyView(CreateView):
+    model = Message
     form_class = ReplyForm
-    success_url = reverse_lazy('home')
     template_name = 'socialmedia/reply.html'
 
     def dispatch(self, request, *args, **kwargs):
@@ -147,6 +149,18 @@ class ReplyView(CreateView):
             return redirect('login')
 
         return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        form.instance.origin = Message.objects.filter(id=self.kwargs['pk']).first()
+        return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['message_content'] = Message.objects.filter(id=self.kwargs['pk']).first()
+        return context
+
+    success_url = reverse_lazy('home')
 
 
 class LikeView(CreateView):

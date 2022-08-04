@@ -9,6 +9,7 @@
     <p>Welcome, {{ user.username }}. Thanks for logging in.</p>
     <a href="{% url 'new_message' %}">New message</a>
 
+    
     <h1>Last messages</h1>
     <!-- Messages from authenticated user (ignore replies) -->
     {% for message in messages %}
@@ -33,6 +34,10 @@
         <a href="{% url 'profile' message.user.username %}">{{ message.user.username }}</a>
         {{ message.publication_date }}
         <p>{{ message.content }}</p>
+        <a href="{% url 'message_detail' message.id %}">Detail</a>
+        <br>
+        <a href="{% url 'reply' message.id %}">Reply</a> - Like - Republish
+        <br>
         ______________________
       </ul>
     {% endfor %}

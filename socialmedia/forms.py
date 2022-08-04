@@ -36,7 +36,12 @@ class ReplyForm(forms.ModelForm):
     
     class Meta:
         model = Message
-        fields = ('user', 'origin', 'content')
+        # fields = ('user', 'origin', 'content')
+        fields = ('content',)
+
+        widgets = {
+            'content': forms.Textarea(attrs={'class': 'form-control'}),
+        }
 
 
 class LikeForm(forms.ModelForm):

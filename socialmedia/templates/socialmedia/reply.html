@@ -4,6 +4,11 @@
 
 {% block content %}
     <h1>Reply</h1>
+    <h5>Message</h5>
+    {{ message_content.content }}
+    <br>________
+    <br>
+    <p>{{ user.username }}, what do you want to reply ?</p>
     <form method="POST">
         {% csrf_token %}
         {{form.as_p}}
