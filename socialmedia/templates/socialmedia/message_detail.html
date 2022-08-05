@@ -4,10 +4,14 @@
 
 {% block content %}
     <div class="message">
-        <a href="{% url 'profile' message.user.username %}">{{message.user.username}}</a> {{message.publication_date}}
+        <a href="{% url 'profile' message.user.username %}">{{message.user.username}}</a> {{ message.publication_date }}
         <br>{{message.content}}
         <br>_________
         <br><a href="{% url 'reply' message.id %}">Reply</a>
+        - <form method="POST" action="{% url 'like' message.id %}">
+            {% csrf_token %}
+            <button type="submit" name="message_id" value="{{ message.id }}">Like</button> {{ message.total_likes }} like(s)
+        </form>
         <div class="replies">
             {% if not replies %}
                 <br>No replies yet to this message.

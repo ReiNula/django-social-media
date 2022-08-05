@@ -1,20 +1,26 @@
 from audioop import reverse
 from re import template
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth import views as auth_views
 from django.contrib import messages
 
 from django.urls import reverse_lazy
 from django.views.generic import View, CreateView, DetailView, ListView, FormView
-from django.views.generic.detail import SingleObjectMixin
 
 from .forms import AddMessageForm, LikeForm, ReplyForm, RetweetForm, RegistrationForm
 from .models import Hashtag, HashtagContent, Like, Message, Subscription, User
 
 
-# Sign In View
+def LikeView(request, pk):
+    # Amelioration : verify if someone already like a message
+
+    message = get_object_or_404(Message, id=request.POST.get('message_id'))
+    Like(message=message, user=request.user).save()
+    return redirect('home')
+
+
 class LoginPageView(auth_views.LoginView):
     template_name = "registration/login.html"
 
@@ -93,6 +99,7 @@ class DetailMessageView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['replies'] = Message.objects.filter(origin=self.get_object()).order_by('-publication_date')
+        context['likes'] = Like.objects.filter(message=self.get_object()).count()
         return context
 
 
@@ -163,22 +170,11 @@ class ReplyView(CreateView):
     success_url = reverse_lazy('home')
 
 
-class LikeView(CreateView):
-    # TODO Améliorer en likant sur le message par la clé étrangère
-    form_class = LikeForm
-    success_url = reverse_lazy('home')
-    context_object_name = 'message'
-    slug_field = 'message_id'
-    slug_url_kwarg = 'message_id'
-    template_name = 'socialmedia/like.html'
+class FollowView(View):
+    model = Subscription
 
-    def get_queryset(self):
-        print(get_object_or_404(Message, id=self.kwargs[0]))
-
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     context['liked_message'] = self.message
-    #     return context
+    def get(self, request, *args, **kwargs):
+        pass
 
 
 class HashtagView(DetailView):

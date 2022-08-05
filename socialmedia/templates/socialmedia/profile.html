@@ -14,9 +14,25 @@
         <div class="messages">
             <ul>
                 <div  class="message">
-                {% for item in user_messages %}
-                    <li>{{ item }}</li>
-                {% endfor %}
+                {% for message in user_messages %}
+                {% if not message.origin %}
+                  <ul>
+                    <a href="{% url 'profile' message.user.username %}">{{ message.user.username }}</a>
+                    {{ message.publication_date }}
+                    <p>{{ message.content }}</p>
+                    <a href="{% url 'message_detail' message.id %}">Detail</a>
+                    <br>
+                    <a href="{% url 'reply' message.id %}">Reply</a> 
+                    -
+                    <form method="POST" action="{% url 'like' message.id %}">
+                        {% csrf_token %}
+                        <button type="submit" name="message_id" value="{{ message.id }}">Like</button>  {{ message.total_likes }} like(s)
+                    </form> 
+                    - Republish
+                    <br>______________________
+                  </ul>
+                {% endif %}
+              {% endfor %}
                 </div>
             </ul>
         </div>

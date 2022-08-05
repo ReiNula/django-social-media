@@ -15,6 +15,10 @@ class AddMessageForm(forms.ModelForm):
     class Meta:
         model = Message
         fields = ('content',)
+
+        widgets = {
+            'content': forms.Textarea(attrs={'class': 'form-control'}),
+        }
     
     def save(self, **kwargs):
         user = kwargs.pop('user')

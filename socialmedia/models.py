@@ -24,6 +24,10 @@ class Message(models.Model):
             return f'{self.content}, publié le {self.publication_date}'
         else:
             return f'Retweet {self.origin}'
+    
+    @property
+    def total_likes(self):
+        return Like.objects.filter(message=self).count()
 
     def clean(self):
         if not self.retweeted and not self.content:
